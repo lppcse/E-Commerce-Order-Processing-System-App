@@ -1,0 +1,6 @@
+{
+  "name": "Order Processing System",
+  "description": "An interactive full-stack E-commerce Order Processing System featuring real-time order tracking, background worker simulations, and a complete Python backend reference for the assignment.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
