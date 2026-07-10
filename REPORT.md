@@ -52,16 +52,48 @@ Below are the major technical challenges identified during development and the s
 
 ## 4. How to Run & Verify
 
-The Python script is fully self-contained and requires no external third-party packages, making it exceptionally lightweight and portable.
+The system includes two versions:
+1. **Core Domain CLI Version (`order_processing_system.py`)**: A fully self-contained Python script with no external dependencies.
+2. **Enterprise API Wrapper Version (`order_processing_fastapi.py`)**: A modern web-service version powered by FastAPI, Pydantic validation, and SQLAlchemy ORM persistence.
 
-### Run the Interactive Simulator
+### Option A: Running the Core Domain CLI Version
 Runs a live CLI demo representing orders being placed, processed by a simulated sped-up background worker, and validated for cancellation limits:
 ```bash
 python order_processing_system.py
 ```
 
-### Run the Core Unit Test Suite
+#### Run CLI Unit Tests
 Runs the comprehensive automated test suite validating 100% of the core requirements (creation, retrieval, status-specific cancellation, and automated background transitions):
 ```bash
 python order_processing_system.py test
+```
+
+---
+
+## 5. Enterprise FastAPI & Database Wrapper (`order_processing_fastapi.py`)
+
+As an extension to the assignment, we built a modern web wrapper that translates the core business logic into a production-grade microservice.
+
+### Architectural Improvements
+* **SQLAlchemy Database Persistence**: Replaces the transient memory store with persistent relational models (using **SQLite** by default, easily configured for **PostgreSQL** via `DATABASE_URL` environment variables). It handles cascade deletions and joins cleanly.
+* **Pydantic Validation Layer**: Leverages strict type-checking and schema validators on request bodies to ensure price, quantity, and name criteria are fulfilled before touching the database.
+* **Lifespan Background Loop**: Replaces raw threads with native `asyncio` task lifespans inside FastAPI. The scheduler wakes up every 5 minutes (or whatever interval is configured via `BACKGROUND_WORKER_INTERVAL` environment variable) to run automated order transition scans.
+
+### Installation of Dependencies
+Ensure your environment has the required packages installed:
+```bash
+pip install fastapi uvicorn sqlalchemy pydantic httpx
+```
+
+### Run the Web Server
+To launch the FastAPI service locally:
+```bash
+python order_processing_fastapi.py
+```
+* **Interactive OpenAPI/Swagger Docs**: Access `http://127.0.0.1:8000/docs` to test endpoints manually in your browser.
+
+### Run the API Test Suite
+To run the database-isolated, in-memory SQLite integration tests for the API endpoints:
+```bash
+python order_processing_fastapi.py test
 ```
